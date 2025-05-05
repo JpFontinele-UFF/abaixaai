@@ -12,7 +12,20 @@
           "package_name": "com.example.abaixaai"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "698873459124-tf0ci7u0856sui45vb8qbjc936e89h9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "e58718e9bac00432c0def6c506b0743f5ce43c11"
+          }
+        },
+        {
+          "client_id": "698873459124-bjbd7fu6jodhddsp436nsuftu1m1iuk7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD8kGssJirdYZB5tTiwRATSsJLLeAuqzFI"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698873459124-bjbd7fu6jodhddsp436nsuftu1m1iuk7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698873459124-p5vrm6m9bqrerl0psgqt3376cqm9nkta.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.abaixaai"
+              }
+            }
+          ]
         }
       }
     }
