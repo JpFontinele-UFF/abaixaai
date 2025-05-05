@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "698873459124",
+    "project_id": "abaixaai-11a02",
+    "storage_bucket": "abaixaai-11a02.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698873459124:android:3ad4bc76ee0e1a341082e1",
+        "android_client_info": {
+          "package_name": "com.example.abaixaai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8kGssJirdYZB5tTiwRATSsJLLeAuqzFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
