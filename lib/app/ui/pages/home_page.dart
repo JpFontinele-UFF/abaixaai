@@ -1,4 +1,5 @@
 import 'package:abaixaai/app/controller/home_controller.dart';
+import 'package:abaixaai/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -50,22 +51,28 @@ class _HomePageState extends State<HomePage> {
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {
-            // Ação do menu hambúrguer
+            _showDevelopmentDialog(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help, color: Colors.white),
+            onPressed: () {
+              _showDevelopmentDialog(context);
+            },
+          ),
+        ],
       ),
       body: _currentLocation == null
           ? const Center(child: CircularProgressIndicator())
           : FlutterMap(
               options: MapOptions(
                 initialCenter: _currentLocation ?? LatLng(0.0, 0.0),
-                initialZoom: 15
-                
+                initialZoom: 15,
               ),
               children: [
                 TileLayer(
-                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
+                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 ),
                 MarkerLayer(
                   markers: [
@@ -81,6 +88,42 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.speed, color: Colors.white),
+        onPressed: () {
+          Get.toNamed(Routes.MEASUREMENT_PAGE);
+        },
+      ),
+    );
+  }
+
+  void _showDevelopmentDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: const SizedBox(
+            height: 100,
+            child: Center(
+              child: Text(
+                "Módulo em desenvolvimento",
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Fechar"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
