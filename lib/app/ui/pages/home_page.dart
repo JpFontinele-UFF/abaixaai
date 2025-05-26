@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:abaixaai/app/ui/pages/webview_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -48,20 +49,88 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {
-            _showDevelopmentDialog(context);
-          },
+        // Use Builder to access the Scaffold context for opening the drawer
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.help, color: Colors.white),
             onPressed: () {
-              _showDevelopmentDialog(context);
+                Get.to(() => const WebViewPage(
+                url: 'https://gabrielgomes191.github.io/AbaixaAI/#sobre',
+                title: 'Github.io Abaixa Aí',
+                ));
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircleAvatar(
+                    radius: 40,
+                    // Replace with your profile placeholder asset path if available
+                    backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Usuário',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Dashboard'),
+              onTap: () {
+                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DashboardPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article),
+              title: const Text('Termos de Serviço'),
+              onTap: () {
+                // Navigate to Terms of Service
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.payment),
+              title: const Text('Pagamentos'),
+              onTap: () {
+                // Navigate to Payments page
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Notificações'),
+              onTap: () {
+                // Navigate to Notifications page
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: _currentLocation == null
           ? const Center(child: CircularProgressIndicator())
@@ -98,32 +167,43 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
 
-  void _showDevelopmentDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          content: const SizedBox(
-            height: 100,
-            child: Center(
-              child: Text(
-                "Módulo em desenvolvimento",
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            ),
+class DashboardPage extends StatelessWidget {
+  const DashboardPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        backgroundColor: Colors.blue,
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.report),
+            title: const Text('Minhas Denúcias'),
+            onTap: () {
+              // Adicione a navegação ou ação desejada aqui.
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Fechar"),
-            ),
-          ],
-        );
-      },
+          ListTile(
+            leading: const Icon(Icons.warning),
+            title: const Text('Focos de barulho'),
+            onTap: () {
+              // Adicione a navegação ou ação desejada aqui.
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('Informações'),
+            onTap: () {
+              // Adicione a navegação ou ação desejada aqui.
+            },
+          ),
+        ],
+      ),
     );
   }
 }
