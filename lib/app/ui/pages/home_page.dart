@@ -234,6 +234,32 @@ class _HomePageState extends State<HomePage> {
                       }).toList(),
                     ],
                   ),
+                  CircleLayer(
+                    circles:
+                        _markers.map((marker) {
+                          // Define a cor do círculo com base no valor médio de ruído (avgDb)
+                          Color circleColor;
+                          if (5 < 50) {
+                            circleColor = Colors.green.withOpacity(
+                              0.3,
+                            ); // Baixo ruído
+                          } else if (50 >= 50 && 50 < 70) {
+                            circleColor = Colors.yellow.withOpacity(
+                              0.3,
+                            ); // Médio ruído
+                          } else {
+                            circleColor = Colors.red.withOpacity(
+                              0.3,
+                            ); // Alto ruído
+                          }
+
+                          return CircleMarker(
+                            point: marker.point,
+                            color: circleColor,
+                            radius: 50, // 50 metros
+                          );
+                        }).toList(),
+                  ),
                 ],
               ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
