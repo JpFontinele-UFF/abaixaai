@@ -1,4 +1,5 @@
 import 'package:abaixaai/app/controller/home_controller.dart';
+import 'package:abaixaai/app/controller/measurement_controller.dart';
 import 'package:abaixaai/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,13 +15,31 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final HomeController _homeController = Get.put(HomeController());
+  final MeasurementController _measurementController = Get.put(
+    MeasurementController(),
+  );
   final Location _location = Location();
   LatLng? _currentLocation;
+  List<Marker> _markers = [];
 
   @override
   void initState() {
     super.initState();
     _getUserLocation();
+    _loadMeasurements();
+  }
+
+  Future<void> _loadMeasurements() async {
+    final measurements = await _measurementController.fetchMeasurements();
+    setState(() {
+      _markers =
+          measurements.map((measurement) {
+            return Marker(
+              point: LatLng(measurement['latitude'], measurement['longitude']),
+              child: const Icon(Icons.location_on, color: Colors.red, size: 30),
+            );
+          }).toList();
+    });
   }
 
   Future<void> _getUserLocation() async {
@@ -28,7 +47,10 @@ class _HomePageState extends State<HomePage> {
     if (hasPermission == PermissionStatus.granted) {
       final locationData = await _location.getLocation();
       setState(() {
-        _currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+        _currentLocation = LatLng(
+          locationData.latitude!,
+          locationData.longitude!,
+        );
       });
     }
   }
@@ -51,21 +73,24 @@ class _HomePageState extends State<HomePage> {
         ),
         // Use Builder to access the Scaffold context for opening the drawer
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.help, color: Colors.white),
             onPressed: () {
-                Get.to(() => const WebViewPage(
-                url: 'https://gabrielgomes191.github.io/AbaixaAI/#sobre',
-                title: 'Github.io Abaixa Aí',
-                ));
+              Get.to(
+                () => const WebViewPage(
+                  url: 'https://gabrielgomes191.github.io/AbaixaAI/#sobre',
+                  title: 'Github.io Abaixa Aí',
+                ),
+              );
             },
           ),
         ],
@@ -75,16 +100,16 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-              ),
+              decoration: const BoxDecoration(color: Colors.blue),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const CircleAvatar(
                     radius: 40,
                     // Replace with your profile placeholder asset path if available
-                    backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+                    backgroundImage: AssetImage(
+                      'assets/images/profile_placeholder.png',
+                    ),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -98,7 +123,7 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.dashboard),
               title: const Text('Dashboard'),
               onTap: () {
-                 Navigator.pop(context);
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const DashboardPage()),
@@ -132,31 +157,74 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: _currentLocation == null
-          ? const Center(child: CircularProgressIndicator())
-          : FlutterMap(
-              options: MapOptions(
-                initialCenter: _currentLocation ?? LatLng(0.0, 0.0),
-                initialZoom: 15,
+      body:
+          _currentLocation == null
+              ? const Center(child: CircularProgressIndicator())
+              : FlutterMap(
+                options: MapOptions(
+                  initialCenter: _currentLocation ?? LatLng(0, 0),
+                  minZoom: 13.0,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      // Marcador para a localização atual
+                      if (_currentLocation != null)
+                        Marker(
+                          point: _currentLocation!,
+                          child: Container(
+                            width: 50, // Tamanho do marcador
+                            height: 50, // Tamanho do marcador
+                            decoration: BoxDecoration(
+                              color: Colors.red, // Cor vermelha
+                              shape: BoxShape.circle, // Formato circular
+                            ),
+                          ),
+                        ),
+                      // Marcadores existentes
+                      ..._markers.map((marker) {
+                        return Marker(
+                          point: marker.point,
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Informações do Local'),
+                                    content: Text('Nome: \nDescrição: '),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Fechar'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: 40, // Tamanho do marcador
+                              height: 40, // Tamanho do marcador
+                              decoration: BoxDecoration(
+                                color: Colors.blue, // Cor azul
+                                shape: BoxShape.circle, // Formato circular
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ],
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _currentLocation!,
-                      child: const Icon(
-                        Icons.location_pin,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
@@ -207,5 +275,3 @@ class DashboardPage extends StatelessWidget {
     );
   }
 }
-
-

@@ -21,8 +21,10 @@ class MeasurementController extends GetxController {
     super.onClose();
   }
 
-  Future<bool> _checkPermission() async => await Permission.microphone.isGranted;
-  Future<void> _requestPermission() async => await Permission.microphone.request();
+  Future<bool> _checkPermission() async =>
+      await Permission.microphone.isGranted;
+  Future<void> _requestPermission() async =>
+      await Permission.microphone.request();
 
   void _onData(NoiseReading noiseReading) {
     currentDb.value = noiseReading.meanDecibel;
@@ -58,7 +60,10 @@ class MeasurementController extends GetxController {
     update();
   }
 
-  Future<void> saveMeasurement({required double latitude, required double longitude}) async {
+  Future<void> saveMeasurement({
+    required double latitude,
+    required double longitude,
+  }) async {
     await FirebaseFirestore.instance.collection('denuncias').add({
       'min': minDb.value,
       'max': maxDb.value,
@@ -67,5 +72,11 @@ class MeasurementController extends GetxController {
       'longitude': longitude,
       'timestamp': DateTime.now(),
     });
+  }
+
+  Future<List<Map<String, dynamic>>> fetchMeasurements() async {
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('denuncias').get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 }
