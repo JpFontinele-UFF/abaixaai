@@ -1,4 +1,3 @@
-import 'package:abaixaai/app/controller/home_controller.dart';
 import 'package:abaixaai/app/controller/measurement_controller.dart';
 import 'package:abaixaai/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final HomeController _homeController = Get.put(HomeController());
   final MeasurementController _measurementController = Get.put(
     MeasurementController(),
   );
@@ -159,7 +157,25 @@ class _HomePageState extends State<HomePage> {
       ),
       body:
           _currentLocation == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Carregando dados...",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ), // Espaço entre o texto e o indicador de progresso
+                    CircularProgressIndicator(),
+                  ],
+                ),
+              )
               : FlutterMap(
                 options: MapOptions(
                   initialCenter: _currentLocation ?? LatLng(0, 0),
@@ -168,8 +184,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   TileLayer(
                     urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
                   MarkerLayer(
                     markers: [
@@ -177,13 +192,10 @@ class _HomePageState extends State<HomePage> {
                       if (_currentLocation != null)
                         Marker(
                           point: _currentLocation!,
-                          child: Container(
-                            width: 50, // Tamanho do marcador
-                            height: 50, // Tamanho do marcador
-                            decoration: BoxDecoration(
-                              color: Colors.red, // Cor vermelha
-                              shape: BoxShape.circle, // Formato circular
-                            ),
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.red, // Cor do ícone
+                            size: 50, // Tamanho do ícone
                           ),
                         ),
                       // Marcadores existentes
@@ -197,7 +209,9 @@ class _HomePageState extends State<HomePage> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: Text('Informações do Local'),
-                                    content: Text('Nome: \nDescrição: '),
+                                    content: Text(
+                                      'latitude: \n longitude: \n ultima atualização: \n media ruido: \n',
+                                    ),
                                     actions: [
                                       TextButton(
                                         onPressed: () {
@@ -210,13 +224,10 @@ class _HomePageState extends State<HomePage> {
                                 },
                               );
                             },
-                            child: Container(
-                              width: 40, // Tamanho do marcador
-                              height: 40, // Tamanho do marcador
-                              decoration: BoxDecoration(
-                                color: Colors.blue, // Cor azul
-                                shape: BoxShape.circle, // Formato circular
-                              ),
+                            child: Icon(
+                              Icons.volume_up,
+                              color: Colors.red, // Cor do ícone
+                              size: 50, // Tamanho do ícone
                             ),
                           ),
                         );
