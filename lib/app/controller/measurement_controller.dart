@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:noise_meter/noise_meter.dart';
@@ -60,7 +61,7 @@ class MeasurementController extends GetxController {
     update();
   }
 
-  Future<void> saveMeasurement({
+  /*Future<void> saveMeasurement({
     required double latitude,
     required double longitude,
   }) async {
@@ -72,11 +73,94 @@ class MeasurementController extends GetxController {
       'longitude': longitude,
       'timestamp': DateTime.now(),
     });
-  }
+  }*/
 
   Future<List<Map<String, dynamic>>> fetchMeasurements() async {
     final querySnapshot =
         await FirebaseFirestore.instance.collection('denuncias').get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
+
+  Future<void> saveMeasurement({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final denunciasCollection = FirebaseFirestore.instance.collection(
+      'denuncias',
+    );
+
+    // Fetch all existing denuncias
+    final querySnapshot = await denunciasCollection.get();
+    bool isWithinRange = false;
+    String? parentDocId;
+
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      final existingLatitude = data['latitude'] as double?;
+      final existingLongitude = data['longitude'] as double?;
+
+      if (existingLatitude != null && existingLongitude != null) {
+        // Calculate distance between points
+        final distance = _calculateDistance(
+          latitude,
+          longitude,
+          existingLatitude,
+          existingLongitude,
+        );
+
+        if (distance <= 50) {
+          isWithinRange = true;
+          parentDocId = doc.id;
+          break;
+        }
+      }
+    }
+
+    if (isWithinRange && parentDocId != null) {
+      // Add to subcollection within the parent document
+      await denunciasCollection
+          .doc(parentDocId)
+          .collection('sub_denuncias')
+          .add({
+            'min': minDb.value,
+            'max': maxDb.value,
+            'avg': avgDb.value,
+            'latitude': latitude,
+            'longitude': longitude,
+            'timestamp': DateTime.now(),
+          });
+    } else {
+      // Create a new document in the main collection
+      await denunciasCollection.add({
+        'min': minDb.value,
+        'max': maxDb.value,
+        'avg': avgDb.value,
+        'latitude': latitude,
+        'longitude': longitude,
+        'timestamp': DateTime.now(),
+      });
+    }
+  }
+
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
+    const earthRadius = 6371e3; // Earth's radius in meters
+    final dLat = _degreesToRadians(lat2 - lat1);
+    final dLon = _degreesToRadians(lon2 - lon1);
+
+    final a =
+        (sin(dLat / 2) * sin(dLat / 2)) +
+        cos(_degreesToRadians(lat1)) *
+            cos(_degreesToRadians(lat2)) *
+            (sin(dLon / 2) * sin(dLon / 2));
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
+  double _degreesToRadians(double degrees) => degrees * (pi / 180);
 }
