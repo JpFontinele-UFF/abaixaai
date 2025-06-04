@@ -78,8 +78,19 @@ class MeasurementController extends GetxController {
     final querySnapshot = await denunciasCollection.get();
     bool isWithinRange = false;
     String? parentDocId;
+    int low = 0;
+    int medium = 0;
+    int high = 0;
 
     for (var doc in querySnapshot.docs) {
+      if (avgDb.value < 40) {
+        low = 1;
+      } else if (avgDb.value < 80) {
+        medium = 1;
+      } else {
+        high = 1;
+      }
+
       final data = doc.data();
       final existingLatitude = data['latitude'] as double?;
       final existingLongitude = data['longitude'] as double?;
@@ -101,6 +112,27 @@ class MeasurementController extends GetxController {
     }
 
     if (isWithinRange && parentDocId != null) {
+      final docSnapshot = await denunciasCollection.doc(parentDocId).get();
+
+      // Obtém os valores de min, max e avg
+      final currentData = docSnapshot.data() ?? {};
+      double currentMin = currentData['min'] ?? 0;
+      double currentMax = currentData['max'] ?? 0;
+      double currentAvg = currentData['avg'] ?? 0;
+
+      final currentAmount = docSnapshot.data()?['amount'] ?? {};
+      int currentLow = currentAmount['low'] ?? 0;
+      int currentMedium = currentAmount['medium'] ?? 0;
+      int currentHigh = currentAmount['high'] ?? 0;
+
+      int total =
+          currentLow + low + currentMedium + medium + currentHigh + high;
+
+      double newMin = (currentMin + minDb.value) / total;
+      double newMax = (currentMax + maxDb.value) / total;
+      double newAvg = (currentAvg + avgDb.value) / total;
+
+      //Guarda a nova denuncia na sub_denuncia
       await denunciasCollection
           .doc(parentDocId)
           .collection('sub_denuncias')
@@ -113,7 +145,21 @@ class MeasurementController extends GetxController {
             'timestamp': DateTime.now(),
             'createdAt': '',
           });
+
+      //Atualiza a denuncia principal
+      await denunciasCollection.doc(parentDocId).update({
+        'min': newMin,
+        'max': newMax,
+        'avg': newAvg,
+        'timestamp': DateTime.now(),
+        'amount': {
+          'low': currentLow + low,
+          'medium': currentMedium + medium,
+          'high': currentHigh + high,
+        },
+      });
     } else {
+      // Se não houver denúncia dentro do raio, cria uma nova
       await denunciasCollection.add({
         'min': minDb.value,
         'max': maxDb.value,
@@ -122,7 +168,22 @@ class MeasurementController extends GetxController {
         'longitude': longitude,
         'timestamp': DateTime.now(),
         'createdAt': '',
+        'amount': {'low': low, 'medium': medium, 'high': high},
       });
+
+      // Adiciona a sub_denuncia na nova denúncia
+      await denunciasCollection
+          .doc(parentDocId)
+          .collection('sub_denuncias')
+          .add({
+            'min': minDb.value,
+            'max': maxDb.value,
+            'avg': avgDb.value,
+            'latitude': latitude,
+            'longitude': longitude,
+            'timestamp': DateTime.now(),
+            'createdAt': '',
+          });
     }
   }
 
