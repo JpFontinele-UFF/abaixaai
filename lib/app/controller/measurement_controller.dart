@@ -61,20 +61,6 @@ class MeasurementController extends GetxController {
     update();
   }
 
-  /*Future<void> saveMeasurement({
-    required double latitude,
-    required double longitude,
-  }) async {
-    await FirebaseFirestore.instance.collection('denuncias').add({
-      'min': minDb.value,
-      'max': maxDb.value,
-      'avg': avgDb.value,
-      'latitude': latitude,
-      'longitude': longitude,
-      'timestamp': DateTime.now(),
-    });
-  }*/
-
   Future<List<Map<String, dynamic>>> fetchMeasurements() async {
     final querySnapshot =
         await FirebaseFirestore.instance.collection('denuncias').get();
@@ -89,7 +75,6 @@ class MeasurementController extends GetxController {
       'denuncias',
     );
 
-    // Fetch all existing denuncias
     final querySnapshot = await denunciasCollection.get();
     bool isWithinRange = false;
     String? parentDocId;
@@ -100,7 +85,6 @@ class MeasurementController extends GetxController {
       final existingLongitude = data['longitude'] as double?;
 
       if (existingLatitude != null && existingLongitude != null) {
-        // Calculate distance between points
         final distance = _calculateDistance(
           latitude,
           longitude,
@@ -117,7 +101,6 @@ class MeasurementController extends GetxController {
     }
 
     if (isWithinRange && parentDocId != null) {
-      // Add to subcollection within the parent document
       await denunciasCollection
           .doc(parentDocId)
           .collection('sub_denuncias')
@@ -128,9 +111,9 @@ class MeasurementController extends GetxController {
             'latitude': latitude,
             'longitude': longitude,
             'timestamp': DateTime.now(),
+            'createdAt': '',
           });
     } else {
-      // Create a new document in the main collection
       await denunciasCollection.add({
         'min': minDb.value,
         'max': maxDb.value,
@@ -138,6 +121,7 @@ class MeasurementController extends GetxController {
         'latitude': latitude,
         'longitude': longitude,
         'timestamp': DateTime.now(),
+        'createdAt': '',
       });
     }
   }
@@ -148,7 +132,7 @@ class MeasurementController extends GetxController {
     double lat2,
     double lon2,
   ) {
-    const earthRadius = 6371e3; // Earth's radius in meters
+    const earthRadius = 6371e3;
     final dLat = _degreesToRadians(lat2 - lat1);
     final dLon = _degreesToRadians(lon2 - lon1);
 

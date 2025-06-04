@@ -186,54 +186,6 @@ class _HomePageState extends State<HomePage> {
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
-                  MarkerLayer(
-                    markers: [
-                      // Marcador para a localização atual
-                      if (_currentLocation != null)
-                        Marker(
-                          point: _currentLocation!,
-                          child: Icon(
-                            Icons.location_on,
-                            color: Colors.red, // Cor do ícone
-                            size: 50, // Tamanho do ícone
-                          ),
-                        ),
-                      // Marcadores existentes
-                      ..._markers.map((marker) {
-                        return Marker(
-                          point: marker.point,
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Informações do Local'),
-                                    content: Text(
-                                      'latitude: \n longitude: \n ultima atualização: \n media ruido: \n',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Fechar'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Icon(
-                              Icons.volume_up,
-                              color: Colors.red, // Cor do ícone
-                              size: 50, // Tamanho do ícone
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
                   CircleLayer(
                     circles:
                         _markers.map((marker) {
@@ -259,6 +211,135 @@ class _HomePageState extends State<HomePage> {
                             radius: 50, // 50 metros
                           );
                         }).toList(),
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      // Marcador para a localização atual
+                      if (_currentLocation != null)
+                        Marker(
+                          point: _currentLocation!,
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.red, // Cor do ícone
+                            size: 50, // Tamanho do ícone
+                          ),
+                        ),
+                      // Marcadores existentes
+                      ..._markers.map((marker) {
+                        return Marker(
+                          point: marker.point,
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [Colors.black, Colors.blue],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(16),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Informações do Local',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            SizedBox(height: 16),
+                                            Text(
+                                              'Latitude:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Valor da latitude aqui',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'Longitude:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Valor da longitude aqui',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'Última atualização:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Data e hora aqui',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(height: 16),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop(),
+                                                child: Text(
+                                                  'Fechar',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    backgroundColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Icon(
+                              Icons.volume_up,
+                              color: Colors.red, // Cor do ícone
+                              size: 50, // Tamanho do ícone
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ),
                 ],
               ),
