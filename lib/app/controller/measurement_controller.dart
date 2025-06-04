@@ -82,6 +82,13 @@ class MeasurementController extends GetxController {
     int medium = 0;
     int high = 0;
 
+    if (avgDb.value < 40) {
+      low = 1;
+    } else if (avgDb.value < 80) {
+      medium = 1;
+    } else {
+      high = 1;
+    }
     for (var doc in querySnapshot.docs) {
       if (avgDb.value < 40) {
         low = 1;
@@ -160,7 +167,7 @@ class MeasurementController extends GetxController {
       });
     } else {
       // Se não houver denúncia dentro do raio, cria uma nova
-      await denunciasCollection.add({
+      final documentRef = await denunciasCollection.add({
         'min': minDb.value,
         'max': maxDb.value,
         'avg': avgDb.value,
@@ -170,10 +177,11 @@ class MeasurementController extends GetxController {
         'createdAt': '',
         'amount': {'low': low, 'medium': medium, 'high': high},
       });
+      final documentId = documentRef.id;
 
       // Adiciona a sub_denuncia na nova denúncia
       await denunciasCollection
-          .doc(parentDocId)
+          .doc(documentId)
           .collection('sub_denuncias')
           .add({
             'min': minDb.value,
