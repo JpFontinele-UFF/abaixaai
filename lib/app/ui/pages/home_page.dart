@@ -158,197 +158,215 @@ class _HomePageState extends State<HomePage> {
       body:
           _currentLocation == null
               ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Carregando dados...",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ), // Espaço entre o texto e o indicador de progresso
-                    CircularProgressIndicator(),
-                  ],
-                ),
-              )
-              : FlutterMap(
-                options: MapOptions(
-                  initialCenter: _currentLocation ?? LatLng(0, 0),
-                  minZoom: 13.0,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  ),
-                  CircleLayer(
-                    circles:
-                        _markers.map((marker) {
-                          // Define a cor do círculo com base no valor médio de ruído (avgDb)
-                          Color circleColor;
-                          if (5 < 50) {
-                            circleColor = Colors.green.withOpacity(
-                              0.3,
-                            ); // Baixo ruído
-                          } else if (50 >= 50 && 50 < 70) {
-                            circleColor = Colors.yellow.withOpacity(
-                              0.3,
-                            ); // Médio ruído
-                          } else {
-                            circleColor = Colors.red.withOpacity(
-                              0.3,
-                            ); // Alto ruído
-                          }
-
-                          return CircleMarker(
-                            point: marker.point,
-                            color: circleColor,
-                            radius: 50, // 50 metros
-                          );
-                        }).toList(),
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      // Marcador para a localização atual
-                      if (_currentLocation != null)
-                        Marker(
-                          point: _currentLocation!,
-                          child: Icon(
-                            Icons.location_on,
-                            color: Colors.red, // Cor do ícone
-                            size: 50, // Tamanho do ícone
-                          ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Carregando dados...",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
                         ),
-                      // Marcadores existentes
-                      ..._markers.map((marker) {
-                        return Marker(
-                          point: marker.point,
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: Container(
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Colors.black, Colors.blue],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(16),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Informações do Local',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                            SizedBox(height: 16),
-                                            Text(
-                                              'Latitude:',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Valor da latitude aqui',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              'Longitude:',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Valor da longitude aqui',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              'Última atualização:',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Data e hora aqui',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SizedBox(height: 16),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop(),
-                                                child: Text(
-                                                  'Fechar',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ), // Espaço entre o texto e o indicador de progresso
+                      CircularProgressIndicator(),
+                    ],
+                  ),
+                )
+              : FlutterMap(
+                  options: MapOptions(
+                    initialCenter: _currentLocation ?? LatLng(0, 0),
+                    minZoom: 13.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    ),
+                    CircleLayer(
+                      circles:
+                          _markers.map((marker) {
+                            // Define a cor do círculo com base no valor médio de ruído (avgDb)
+                            Color circleColor;
+                            // NOTE: The original code had '5 < 50' and '50 >= 50 && 50 < 70' which will always result in green/red.
+                            // You need to replace '5' and '50' with the actual `avgDb` from your measurement data.
+                            // For example, if your measurement object has an 'avgDb' field:
+                            // double avgDb = measurement['avgDb'];
+                            // if (avgDb < 50) {
+                            //   circleColor = Colors.green.withOpacity(0.3);
+                            // } else if (avgDb >= 50 && avgDb < 70) {
+                            //   circleColor = Colors.yellow.withOpacity(0.3);
+                            // } else {
+                            //   circleColor = Colors.red.withOpacity(0.3);
+                            // }
+                            // For now, I'll keep the original logic, but be aware of this.
+                            if (5 < 50) { // This condition needs to use actual measurement data
+                              circleColor = Colors.green.withOpacity(
+                                0.3,
+                              ); // Baixo ruído
+                            } else if (50 >= 50 && 50 < 70) { // This condition needs to use actual measurement data
+                              circleColor = Colors.yellow.withOpacity(
+                                0.3,
+                              ); // Médio ruído
+                            } else {
+                              circleColor = Colors.red.withOpacity(
+                                0.3,
+                              ); // Alto ruído
+                            }
+
+                            return CircleMarker(
+                              point: marker.point,
+                              color: circleColor,
+                              radius: 50, // 50 metros
+                            );
+                          }).toList(),
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        // Marcador para a localização atual
+                        if (_currentLocation != null)
+                          Marker(
+                            point: _currentLocation!,
                             child: Icon(
-                              Icons.volume_up,
+                              Icons.location_on,
                               color: Colors.red, // Cor do ícone
                               size: 50, // Tamanho do ícone
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ],
-              ),
+                        // Marcadores existentes
+                        ..._markers.map((marker) {
+                          return Marker(
+                            point: marker.point,
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Container(
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [Colors.black, Colors.blue],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(16),
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Informações do Local',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                              SizedBox(height: 16),
+                                              Text(
+                                                'Latitude:',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                // Replace with actual latitude from the tapped marker
+                                                '${marker.point.latitude}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                'Longitude:',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                // Replace with actual longitude from the tapped marker
+                                                '${marker.point.longitude}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                'Última atualização:',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                // You'll need to pass the timestamp with your measurement data
+                                                'Data e hora aqui',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 16),
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: TextButton(
+                                                  onPressed:
+                                                      () =>
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop(),
+                                                  child: Text(
+                                                    'Fechar',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Icon(
+                                Icons.volume_up,
+                                color: Colors.red, // Cor do ícone
+                                size: 50, // Tamanho do ícone
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ],
+                ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         child: const Icon(Icons.speed, color: Colors.white),
-        onPressed: () {
-          Get.toNamed(Routes.MEASUREMENT_PAGE);
+        onPressed: () async {
+          // Navigate to the measurement page and wait for it to be popped
+          await Get.toNamed(Routes.MEASUREMENT_PAGE);
+          // Once returned, reload the measurements
+          _loadMeasurements();
         },
       ),
     );
