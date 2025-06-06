@@ -1,5 +1,8 @@
 import 'package:abaixaai/app/controller/measurement_controller.dart';
 import 'package:abaixaai/app/routes/app_routes.dart';
+import 'package:abaixaai/app/ui/pages/focos_barulho.dart';
+import 'package:abaixaai/app/ui/pages/informacoes.dart';
+import 'package:abaixaai/app/ui/pages/minhas_denuncias.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -369,23 +372,37 @@ class DashboardPage extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.report),
-            title: const Text('Minhas Denúcias'),
+            title: const Text('Minhas Denúncias'),
             onTap: () {
-              // Adicione a navegação ou ação desejada aqui.
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MyReportsPage(), // Substitua pelo email do usuário logado
+                ),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.warning),
-            title: const Text('Focos de barulho'),
+            title: const Text('Focos de Barulho'),
             onTap: () {
-              // Adicione a navegação ou ação desejada aqui.
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => NoiseHotspotsPage()),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('Informações'),
             onTap: () {
-              // Adicione a navegação ou ação desejada aqui.
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => InfoPage()),
+              );
             },
           ),
         ],

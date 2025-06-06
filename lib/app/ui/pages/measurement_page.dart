@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:abaixaai/app/controller/measurement_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
@@ -16,6 +17,7 @@ class _MeasurementPageState extends State<MeasurementPage> {
   final Location _location = Location();
   double? latitude;
   double? longitude;
+  bool isAnonymous = false; // Estado do checkbox
 
   @override
   void initState() {
@@ -78,12 +80,15 @@ class _MeasurementPageState extends State<MeasurementPage> {
                           )),
                       const SizedBox(height: 8),
                       Obx(() => Text(
-                            controller.currentDb.value.toInt().toString(),
-                            style: TextStyle(
-                                fontSize: gaugeSize * 0.21,
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold),
-                          )),
+                        controller.currentDb.value.isFinite
+                            ? controller.currentDb.value.toInt().toString()
+                            : '0', // Valor padrão para casos inválidos
+                        style: TextStyle(
+                          fontSize: gaugeSize * 0.21,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
                       const Text('dB', style: TextStyle(fontSize: 18, color: Colors.blue)),
                       const SizedBox(height: 12),
                       // Simulação do gráfico de linha
@@ -122,6 +127,24 @@ class _MeasurementPageState extends State<MeasurementPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
+                // Checkbox para anonimato
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                      value: isAnonymous,
+                      onChanged: (value) {
+                        setState(() {
+                          isAnonymous = value ?? false;
+                        });
+                      },
+                    ),
+                    const Text(
+                      "Anônimo?",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
@@ -143,8 +166,18 @@ class _MeasurementPageState extends State<MeasurementPage> {
                     } else {
                       controller.stopRecording();
                       if (latitude != null && longitude != null) {
-                        await controller.saveMeasurement(latitude: latitude!, longitude: longitude!);
-                        Get.snackbar("Denúncia", "Denúncia salva com sucesso!", backgroundColor: Colors.green, colorText: Colors.white);
+                        // Pega o email do usuário logado ou usa "anonimo" se o checkbox estiver marcado
+                        final userEmail = isAnonymous ? "anonimo" : FirebaseAuth.instance.currentUser?.email;
+                        if (userEmail != null) {
+                          await controller.saveMeasurement(
+                            latitude: latitude!,
+                            longitude: longitude!,
+                            userEmail: userEmail, // Passa o email ou "anonimo"
+                          );
+                          Get.snackbar("Denúncia", "Denúncia salva com sucesso!", backgroundColor: Colors.green, colorText: Colors.white);
+                        } else {
+                          Get.snackbar("Erro", "Usuário não está logado!", backgroundColor: Colors.red, colorText: Colors.white);
+                        }
                       }
                     }
                   },
@@ -201,10 +234,11 @@ class _LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (values.isEmpty) return;
+    if (values.isEmpty || values.any((v) => !v.isFinite)) return; // Proteção contra valores inválidos
     final Paint paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2;
+
     final double maxValue = values.reduce((a, b) => a > b ? a : b);
     final double minValue = values.reduce((a, b) => a < b ? a : b);
     final double range = (maxValue - minValue).abs() < 1 ? 1 : (maxValue - minValue);
