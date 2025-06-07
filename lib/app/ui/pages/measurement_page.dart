@@ -178,11 +178,11 @@ class _GaugePainter extends CustomPainter {
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), 3.14, 3.14, false, paint);
 
     // Ponteiro
-    final angle = 3.14 + (value.clamp(0, 100) / 100) * 3.14;
+    final angle = pi + (1 - value.clamp(0, 100) / 100) * pi;
     final pointerLength = radius - 20;
     final pointerEnd = Offset(
-      center.dx + pointerLength * -cos(angle),
-      center.dy + pointerLength * -sin(angle),
+    center.dx - pointerLength * cos(angle),
+    center.dy + pointerLength * sin(angle),
     );
     final pointerPaint = Paint()
       ..color = Colors.blue
