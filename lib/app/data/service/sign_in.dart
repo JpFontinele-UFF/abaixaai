@@ -37,10 +37,8 @@ class SignInService {
     try {
       var u = await FirebaseAuth.instance.signInWithCredential(authCredential);
       await _createUserDoc();
-      if (account != null) {
-        return UserModel.fromFirebase(account);
-      }
-    } catch (err) {
+      return UserModel.fromFirebase(account);
+        } catch (err) {
       debugPrint(err.toString());
     }
     return null;
