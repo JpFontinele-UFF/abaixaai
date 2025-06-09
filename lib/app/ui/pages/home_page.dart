@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(Icons.article),
               title: const Text('Termos de Serviço'),
               onTap: () {
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.pop(context);
               },
-            ),
+            ),*/
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sair'),
@@ -479,8 +479,11 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         child: const Icon(Icons.speed, color: Colors.white), //
-        onPressed: () {
-          Get.toNamed(Routes.MEASUREMENT_PAGE);
+        onPressed: () async {
+          // Navigate to the measurement page and wait for it to be popped
+          await Get.toNamed(Routes.MEASUREMENT_PAGE);
+          // Once returned, reload the measurements
+          _loadMeasurements();
         },
       ),
     );
