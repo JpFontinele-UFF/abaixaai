@@ -7,6 +7,8 @@ import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MeasurementPage extends StatefulWidget {
+  const MeasurementPage({super.key});
+
   @override
   State<MeasurementPage> createState() => _MeasurementPageState();
 }

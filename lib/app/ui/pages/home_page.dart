@@ -6,8 +6,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:abaixaai/app/ui/pages/webview_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -98,23 +101,44 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.blue),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircleAvatar(
-                    radius: 40,
-                    // Replace with your profile placeholder asset path if available
-                    backgroundImage: AssetImage(
-                      'assets/images/profile_placeholder.png',
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.black, Colors.blue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 35,
+                      backgroundImage: FirebaseAuth.instance.currentUser?.photoURL != null
+                        ? NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!)
+                        : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Usuário',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      FirebaseAuth.instance.currentUser?.displayName ?? 'Usuário',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      FirebaseAuth.instance.currentUser?.email ?? '',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 12,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
             ListTile(
@@ -150,6 +174,14 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 // Navigate to Notifications page
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sair'),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Get.offAllNamed(Routes.INITIAL); // Changed from Routes.LOGIN to Routes.INITIAL
               },
             ),
           ],
@@ -338,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ],
@@ -356,7 +388,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
