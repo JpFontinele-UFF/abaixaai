@@ -57,6 +57,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.0.5
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -69,6 +73,33 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  background_color_ios: "#ffffff"
+  image_path: "assets/icons/logo.jpeg"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icons/logo.jpeg"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+
+flutter_native_splash:
+  color: "#000000" 
+  image: "assets/icons/logo.jpeg"
+  android: true 
+  ios: true 
+  web: true
+  fullscreen: true 
+
+  android_12:
+    icon_background_color: "#FFFFFF"
+    image: "assets/icons/logo.jpeg"
+    icon_background_color_dark: "#1a1a1a"
+    image_dark: "assets/icons/logo.jpeg"
+
 flutter:
 
   # The following line ensures that the Material Icons font is
