@@ -10,35 +10,62 @@ class MyReportsPage extends StatelessWidget {
       throw Exception('Usuário não está logado.');
     }
 
-    // Fetch reports from Firestore where the 'email' field matches the current user's email.
-    final querySnapshot = await FirebaseFirestore.instance
+    List<Map<String, dynamic>> allReports = [];
+
+    // 1. Fetch ALL documents from the 'denuncias' collection
+    // We no longer filter by 'createdAt' at this level, as per your new requirement.
+    final mainCollectionSnapshot = await FirebaseFirestore.instance
         .collection('denuncias')
-        .where('email', isEqualTo: userEmail)
         .get();
 
-    // Process each document from the query snapshot.
-    final reports = querySnapshot.docs.map((doc) {
+    for (var doc in mainCollectionSnapshot.docs) {
       final data = doc.data();
-      final timestamp = data['timestamp'] as Timestamp?; // Safely cast timestamp
-      DateTime? dateTime;
 
-      // Convert Firestore Timestamp to DateTime and adjust for GMT-3 timezone.
-      if (timestamp != null) {
-        dateTime = timestamp.toDate().subtract(const Duration(hours: 3));
+      // Check if the main 'denuncia' itself was created by the user
+      if (data['createdAt'] == userEmail) {
+        final timestamp = data['timestamp'] as Timestamp?;
+        DateTime? dateTime;
+
+        if (timestamp != null) {
+          // Adjust for GMT-3 timezone (current time is -03)
+          dateTime = timestamp.toDate().subtract(const Duration(hours: 3));
+        }
+
+        allReports.add({
+          ...data,
+          'timestamp': dateTime,
+        });
       }
 
-      // Return a new map with the adjusted timestamp.
-      return {
-        ...data,
-        'timestamp': dateTime,
-      };
-    }).toList();
+      // 2. Always fetch documents from the 'sub_denuncias' subcollection for each main document
+      // AND apply the 'createdAt' filter for the user's email here.
+      final subReportsQuerySnapshot = await doc.reference
+          .collection('sub_denuncias')
+          .where('createdAt', isEqualTo: userEmail)
+          .get();
 
-    // Manually sort the reports by timestamp in descending order (most recent first).
-    // Firestore's orderBy might require indexes, so client-side sorting is a safe alternative.
-    reports.sort((a, b) {
+      for (var subDoc in subReportsQuerySnapshot.docs) {
+        final subData = subDoc.data();
+        final subTimestamp = subData['timestamp'] as Timestamp?;
+        DateTime? subDateTime;
+
+        if (subTimestamp != null) {
+          // Adjust for GMT-3 timezone (current time is -03)
+          subDateTime = subTimestamp.toDate().subtract(const Duration(hours: 3));
+        }
+
+        allReports.add({
+          ...subData,
+          'timestamp': subDateTime,
+        });
+      }
+    }
+
+    // Manually sort all reports by timestamp in descending order (most recent first).
+    allReports.sort((a, b) {
       final timestampA = a['timestamp'] as DateTime?;
       final timestampB = b['timestamp'] as DateTime?;
+
       // Handle null timestamps by placing them at the end.
       if (timestampA == null && timestampB == null) return 0;
       if (timestampA == null) return 1; // b is not null, so b comes before a
@@ -46,7 +73,7 @@ class MyReportsPage extends StatelessWidget {
       return timestampB.compareTo(timestampA); // Sort in descending order
     });
 
-    return reports;
+    return allReports;
   }
 
   @override
