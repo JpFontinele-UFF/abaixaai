@@ -1,5 +1,5 @@
 import 'package:abaixaai/app/controller/login_controller.dart';
-import 'package:abaixaai/app/routes/app_routes.dart';  // Add this import
+import 'package:abaixaai/app/routes/app_routes.dart'; // Add this import
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -28,11 +28,8 @@ class _InitialPageState extends State<InitialPage> {
         Get.offNamed(Routes.HOME);
       });
     } else {
-      // Show login after splash if not logged in
-      Future.delayed(const Duration(milliseconds: 3000), () {
-        setState(() {
-          _showLogin = true;
-        });
+      setState(() {
+        _showLogin = true;
       });
     }
   }
@@ -47,10 +44,7 @@ class _InitialPageState extends State<InitialPage> {
               gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
-                colors: [
-                  Colors.blue,
-                  Colors.black,
-                ],
+                colors: [Colors.blue, Colors.black],
               ),
             ),
           ),
@@ -95,9 +89,10 @@ class _InitialPageState extends State<InitialPage> {
                   ),
                 ],
               ),
-              crossFadeState: _showLogin
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
+              crossFadeState:
+                  _showLogin
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
             ),
           ),
         ],

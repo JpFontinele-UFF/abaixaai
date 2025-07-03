@@ -38,8 +38,8 @@ class LoginController extends GetxController {
     }
   }
 
-  void logout() {
-    repository.logoutGoogle();
+  Future<void> logout() async {
+    await repository.logoutGoogle();
     Get.offAllNamed(Routes.INITIAL); // Changed from Routes.LOGIN
   }
 

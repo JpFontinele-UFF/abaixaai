@@ -11,7 +11,9 @@ class SignInService {
 
   _createUserDoc() async {
     try {
-      DocumentReference documentReference = FirebaseFirestore.instance.doc('/users/${FirebaseAuth.instance.currentUser!.uid}');
+      DocumentReference documentReference = FirebaseFirestore.instance.doc(
+        '/users/${FirebaseAuth.instance.currentUser!.uid}',
+      );
       DocumentSnapshot documentSnapshot = await documentReference.get();
       if (documentSnapshot.exists) return;
 
@@ -19,7 +21,6 @@ class SignInService {
         'created_at': DateTime.now(),
         'updated_at': DateTime.now(),
         'email': FirebaseAuth.instance.currentUser!.email,
-        'liked': [],
       });
     } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
@@ -33,12 +34,15 @@ class SignInService {
   Future<UserModel?> signInGoogle() async {
     var account = await _googleSignIn.signIn();
     var b = await account!.authentication;
-    final authCredential = GoogleAuthProvider.credential(accessToken: b.accessToken, idToken: b.idToken);
+    final authCredential = GoogleAuthProvider.credential(
+      accessToken: b.accessToken,
+      idToken: b.idToken,
+    );
     try {
       var u = await FirebaseAuth.instance.signInWithCredential(authCredential);
       await _createUserDoc();
       return UserModel.fromFirebase(account);
-        } catch (err) {
+    } catch (err) {
       debugPrint(err.toString());
     }
     return null;
@@ -50,7 +54,10 @@ class SignInService {
       return null;
     }
     var b = await account.authentication;
-    final authCredential = GoogleAuthProvider.credential(accessToken: b.accessToken, idToken: b.idToken);
+    final authCredential = GoogleAuthProvider.credential(
+      accessToken: b.accessToken,
+      idToken: b.idToken,
+    );
     try {
       var u = await FirebaseAuth.instance.signInWithCredential(authCredential);
       await _createUserDoc();

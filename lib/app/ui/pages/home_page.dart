@@ -1,4 +1,5 @@
 // Imports originais do seu arquivo
+import 'package:abaixaai/app/controller/login_controller.dart';
 import 'package:abaixaai/app/controller/measurement_controller.dart';
 import 'package:abaixaai/app/routes/app_routes.dart';
 import 'package:abaixaai/app/ui/pages/focos_barulho.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   final MeasurementController _measurementController = Get.put(
     MeasurementController(),
   );
+  final LoginController _loginController = Get.put(LoginController());
   final Location _location = Location();
   LatLng? _currentLocation;
   List<Marker> _markers = [];
@@ -237,36 +239,12 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            /*ListTile(
-              leading: const Icon(Icons.article),
-              title: const Text('Termos de Serviço'),
-              onTap: () {
-                Navigator.pop(context); //
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.payment),
-              title: const Text('Pagamentos'),
-              onTap: () {
-                // Navigate to Payments page
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('Notificações'), //
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),*/
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sair'),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Get.offAllNamed(
-                  Routes.INITIAL,
-                ); // Changed from Routes.LOGIN to Routes.INITIAL
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                _loginController.logout();
               },
             ),
           ],
@@ -389,31 +367,16 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ), //
                                             SizedBox(height: 16),
-                                            Text(
-                                              //
-                                              'Latitude:',
-                                              style: TextStyle(
-                                                //
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold, //
-                                              ),
-                                            ), //
-                                            Text(
-                                              'Valor da latitude aqui', //
-                                              style: TextStyle(
-                                                color: Colors.white, //
-                                              ),
-                                            ),
                                             SizedBox(height: 8), //
                                             Text(
-                                              'Longitude:', //
+                                              'Nível de Ruído:', //
                                               style: TextStyle(
                                                 color: Colors.white, //
                                                 fontWeight: FontWeight.bold,
                                               ), //
                                             ),
                                             Text(
-                                              'Valor da longitude aqui', //
+                                              'Valor do nível de ruído aqui', //
                                               style: TextStyle(
                                                 color: Colors.white, //
                                               ),
