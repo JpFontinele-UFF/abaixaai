@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:abaixaai/app/controller/measurement_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,12 +19,31 @@ class _MeasurementPageState extends State<MeasurementPage> {
   final Location _location = Location();
   double? latitude;
   double? longitude;
-  bool isAnonymous = false; // Estado do checkbox
+  bool isAnonymous = false;
+  int countdown = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _getLocation();
+  }
+
+  @override
+  void dispose() {
+    _resetState();
+    super.dispose();
+  }
+
+  void _resetState() {
+    countdown = 0;
+    _timer?.cancel();
+    controller.isRecording.value = false;
+    controller.currentDb.value = 0;
+    controller.dbValues.clear();
+    controller.minDb.value = 0;
+    controller.maxDb.value = 0;
+    controller.avgDb.value = 0;
   }
 
   Future<void> _getLocation() async {
@@ -58,6 +78,29 @@ class _MeasurementPageState extends State<MeasurementPage> {
     );
   }
 
+  void _startCountdown() async {
+    setState(() {
+      countdown = 5;
+    });
+    // Inicia a gravação imediatamente para feedback visual
+    controller.startRecording();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (countdown > 1) {
+        setState(() {
+          countdown--;
+        });
+      } else {
+        timer.cancel();
+        setState(() {
+          countdown = 0;
+        });
+        // Para a gravação ao final do contador, permitindo salvar denúncia
+        controller.stopRecording();
+        controller.isRecording.value = true;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -77,201 +120,223 @@ class _MeasurementPageState extends State<MeasurementPage> {
       ),
       body: Obx(() {
         return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Medidor
-                Container(
-                  width: gaugeSize,
-                  margin: EdgeInsets.symmetric(
-                    horizontal: (screenWidth - gaugeSize) / 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A1D38),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Gauge
-                      Obx(
-                        () => CustomPaint(
-                          size: Size(gaugeSize * 0.66, gaugeSize * 0.4),
-                          painter: _GaugePainter(controller.currentDb.value),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Obx(
-                        () => Text(
-                          controller.currentDb.value.isFinite
-                              ? controller.currentDb.value.toInt().toString()
-                              : '0', // Valor padrão para casos inválidos
-                          style: TextStyle(
-                            fontSize: gaugeSize * 0.21,
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+          child: Center(
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Medidor
+                  Container(
+                    width: gaugeSize,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: (screenWidth - gaugeSize) / 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1D38),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Gauge
+                        Obx(
+                          () => CustomPaint(
+                            size: Size(gaugeSize * 0.66, gaugeSize * 0.4),
+                            painter: _GaugePainter(controller.currentDb.value),
                           ),
                         ),
-                      ),
-                      const Text(
-                        'dB',
-                        style: TextStyle(fontSize: 18, color: Colors.blue),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () => SizedBox(
-                          height: gaugeSize * 0.13,
-                          width: gaugeSize * 0.66,
-                          child: CustomPaint(
-                            painter: _LineChartPainter(
-                              controller.dbValues.toList(),
+                        const SizedBox(height: 8),
+                        Obx(
+                          () => Text(
+                            controller.currentDb.value.isFinite
+                                ? controller.currentDb.value.toInt().toString()
+                                : '0', // Valor padrão para casos inválidos
+                            style: TextStyle(
+                              fontSize: gaugeSize * 0.21,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
+                        const Text(
+                          'dB',
+                          style: TextStyle(fontSize: 18, color: Colors.blue),
+                        ),
+                        const SizedBox(height: 12),
+                        Obx(
+                          () => SizedBox(
+                            height: gaugeSize * 0.13,
+                            width: gaugeSize * 0.66,
+                            child: CustomPaint(
+                              painter: _LineChartPainter(
+                                controller.dbValues.toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                const Text(
+                                  'min',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                Obx(
+                                  () => Text(
+                                    controller.minDb.value.toInt().toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'avg',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                Obx(
+                                  () => Text(
+                                    controller.avgDb.value.toInt().toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Text(
+                                  'max',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                Obx(
+                                  () => Text(
+                                    controller.maxDb.value.toInt().toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Checkbox para anonimato
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: isAnonymous,
+                        onChanged: (value) {
+                          setState(() {
+                            isAnonymous = value ?? false;
+                          });
+                        },
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Column(
-                            children: [
-                              const Text(
-                                'min',
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                              Obx(
-                                () => Text(
-                                  controller.minDb.value.toInt().toString(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              const Text(
-                                'avg',
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                              Obx(
-                                () => Text(
-                                  controller.avgDb.value.toInt().toString(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              const Text(
-                                'max',
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                              Obx(
-                                () => Text(
-                                  controller.maxDb.value.toInt().toString(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      const Text(
+                        "Anônimo?",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 32),
-                // Checkbox para anonimato
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Checkbox(
-                      value: isAnonymous,
-                      onChanged: (value) {
-                        setState(() {
-                          isAnonymous = value ?? false;
-                        });
-                      },
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          (countdown > 0) ? Colors.grey : Colors.blue,
+                      minimumSize: const Size(220, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    const Text(
-                      "Anônimo?",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    minimumSize: const Size(220, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  onPressed: () async {
-                    if (!controller.isRecording.value) {
-                      await _showMicrophoneInfoDialog();
+                    onPressed:
+                        (countdown > 0)
+                            ? null
+                            : () async {
+                              if (!controller.isRecording.value) {
+                                await _showMicrophoneInfoDialog();
 
-                      if (await Permission.microphone.isGranted) {
-                        controller.startRecording();
-                      } else {
-                        await Permission.microphone.request();
-                        if (await Permission.microphone.isGranted) {
-                          controller.startRecording();
-                        } else {
-                          Get.snackbar(
-                            "Permissão",
-                            "Permissão de microfone negada!",
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                        }
-                      }
-                    } else {
-                      controller.stopRecording();
-                      if (latitude != null && longitude != null) {
-                        // Pega o email do usuário logado ou usa "anonimo" se o checkbox estiver marcado
-                        final userEmail =
-                            isAnonymous
-                                ? "anonimo"
-                                : FirebaseAuth.instance.currentUser?.email;
-                        if (userEmail != null) {
-                          await controller.saveMeasurement(
-                            latitude: latitude!,
-                            longitude: longitude!,
-                            userEmail: userEmail, // Passa o email ou "anonimo"
-                          );
-                          Get.snackbar(
-                            "Denúncia",
-                            "Denúncia salva com sucesso!",
-                            backgroundColor: Colors.green,
-                            colorText: Colors.white,
-                          );
-                        } else {
-                          Get.snackbar(
-                            "Erro",
-                            "Usuário não está logado!",
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                        }
-                      }
-                    }
-                  },
-                  child: Text(
-                    controller.isRecording.value
-                        ? "Salvar denúncia"
-                        : "Gravar ruído",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                                if (await Permission.microphone.isGranted) {
+                                  _startCountdown();
+                                } else {
+                                  await Permission.microphone.request();
+                                  if (await Permission.microphone.isGranted) {
+                                    _startCountdown();
+                                  } else {
+                                    Get.snackbar(
+                                      "Permissão",
+                                      "Permissão de microfone negada!",
+                                      backgroundColor: Colors.red,
+                                      colorText: Colors.white,
+                                    );
+                                  }
+                                }
+                              } else {
+                                controller.stopRecording();
+                                if (latitude != null && longitude != null) {
+                                  final userEmail =
+                                      isAnonymous
+                                          ? "anonimo"
+                                          : FirebaseAuth
+                                              .instance
+                                              .currentUser
+                                              ?.email;
+                                  if (userEmail != null) {
+                                    await controller.saveMeasurement(
+                                      latitude: latitude!,
+                                      longitude: longitude!,
+                                      userEmail: userEmail,
+                                    );
+                                    Get.snackbar(
+                                      "Denúncia",
+                                      "Denúncia salva com sucesso!",
+                                      backgroundColor: Colors.green,
+                                      colorText: Colors.white,
+                                    );
+                                    setState(() {
+                                      _resetState();
+                                    });
+                                  } else {
+                                    Get.snackbar(
+                                      "Erro",
+                                      "Usuário não está logado!",
+                                      backgroundColor: Colors.red,
+                                      colorText: Colors.white,
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                    child:
+                        (countdown > 0)
+                            ? Text(
+                              "Gravando em $countdown...",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                            : Text(
+                              controller.isRecording.value
+                                  ? "Salvar denúncia"
+                                  : "Gravar ruído",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
