@@ -13,7 +13,6 @@ import 'package:location/location.dart';
 import 'package:abaixaai/app/ui/pages/webview_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// Estrutura original da sua classe
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,40 +21,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Variáveis originais do seu código
   final MeasurementController _measurementController = Get.put(
     MeasurementController(),
   );
   final LoginController _loginController = Get.put(LoginController());
+
   final Location _location = Location();
   LatLng? _currentLocation;
   List<Marker> _markers = [];
 
-  // =======================================================================
-  // INÍCIO: CÓDIGO MODIFICADO
-  // A lógica de inicialização foi centralizada aqui para adicionar o diálogo com segurança.
-  // =======================================================================
   @override
   void initState() {
     super.initState();
-    // A função _getUserLocation foi substituída por esta nova função mais completa
     _initializePageAndPermissions();
   }
 
   Future<void> _initializePageAndPermissions() async {
-    // Usamos WidgetsBinding para garantir que o contexto está pronto para um diálogo.
-    // Isso evita o travamento que tivemos antes.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 1. Mostra o diálogo de explicação que criamos
       await _showLocationExplanationDialog();
-
-      // 2. A lógica original da sua função _getUserLocation começa aqui
       final hasPermission = await _location.requestPermission();
       if (hasPermission == PermissionStatus.granted) {
-        //
         final locationData = await _location.getLocation();
         if (mounted) {
-          // A lógica original do seu setState
           setState(() {
             _currentLocation = LatLng(
               locationData.latitude!,
@@ -64,19 +51,10 @@ class _HomePageState extends State<HomePage> {
           });
         }
       }
-
-      // 3. A chamada original para _loadMeasurements, que estava no initState
       _loadMeasurements();
     });
   }
-  // =======================================================================
-  // FIM: CÓDIGO MODIFICADO
-  // =======================================================================
 
-  // =======================================================================
-  // INÍCIO: CÓDIGO NOVO
-  // Esta é a função que cria e mostra o alerta.
-  // =======================================================================
   Future<void> _showLocationExplanationDialog() async {
     return showDialog<void>(
       context: context,
@@ -113,11 +91,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-  // =======================================================================
-  // FIM: CÓDIGO NOVO
-  // =======================================================================
 
-  // Sua função _loadMeasurements original, sem alterações
   Future<void> _loadMeasurements() async {
     final measurements = await _measurementController.fetchMeasurements();
     setState(() {
@@ -131,10 +105,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // A função _getUserLocation original não é mais necessária, pois sua lógica
-  // foi movida para dentro de _initializePageAndPermissions.
-
-  // Seu método build original, sem nenhuma alteração
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,18 +124,16 @@ class _HomePageState extends State<HomePage> {
         leading: Builder(
           builder:
               (context) => IconButton(
-                //
                 icon: const Icon(Icons.menu, color: Colors.white),
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
-              ), //
+              ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.help, color: Colors.white),
             onPressed: () {
-              //
               Get.to(
                 () => const WebViewPage(
                   url: 'https://gabrielgomes191.github.io/AbaixaAI/#sobre', //
@@ -177,7 +145,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       drawer: Drawer(
-        //
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -266,32 +233,26 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey,
                       ), //
                     ),
-                    SizedBox(
-                      height: 10, //
-                    ),
+                    SizedBox(height: 10),
                     CircularProgressIndicator(),
                   ],
                 ),
               )
               : FlutterMap(
                 options: MapOptions(
-                  //
                   initialCenter: _currentLocation ?? LatLng(0, 0),
                   minZoom: 13.0,
                 ),
                 children: [
                   TileLayer(
-                    //
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
                   CircleLayer(
                     circles:
                         _markers.map((marker) {
-                          //
                           Color circleColor;
                           if (5 < 50) {
-                            //
                             circleColor = Colors.green.withOpacity(
                               0.3,
                             ); // Baixo ruído
@@ -304,135 +265,121 @@ class _HomePageState extends State<HomePage> {
                               0.3,
                             ); // Alto ruído
                           }
-
                           return CircleMarker(
                             point: marker.point,
-                            color: circleColor, //
+                            color: circleColor,
                             radius: 50,
                           );
-                        }).toList(), //
+                        }).toList(),
                   ),
                   MarkerLayer(
                     markers: [
-                      if (_currentLocation != null) //
+                      if (_currentLocation != null)
                         Marker(
                           point: _currentLocation!,
                           child: Icon(
-                            Icons.location_on, //
+                            Icons.location_on,
                             color: Colors.red,
                             size: 50,
-                          ), //
+                          ),
                         ),
                       ..._markers.map((marker) {
                         return Marker(
-                          //
                           point: marker.point,
                           child: GestureDetector(
                             onTap: () {
-                              //
                               showDialog(
-                                //
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    //
                                     content: Container(
                                       decoration: const BoxDecoration(
                                         gradient: LinearGradient(
-                                          //
                                           colors: [Colors.black, Colors.blue],
                                           begin: Alignment.topLeft, //
                                           end: Alignment.bottomRight,
-                                        ), //
+                                        ),
                                         borderRadius: BorderRadius.all(
                                           Radius.circular(16),
-                                        ), //
+                                        ),
                                       ),
                                       child: Padding(
-                                        //
                                         padding: const EdgeInsets.all(16.0),
                                         child: Column(
-                                          mainAxisSize: MainAxisSize.min, //
+                                          mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start, //
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              //
                                               'Informações do Local',
                                               style: TextStyle(
-                                                //
                                                 color: Colors.white,
-                                                fontWeight: FontWeight.bold, //
+                                                fontWeight: FontWeight.bold,
                                                 fontSize: 18,
                                               ),
                                             ), //
                                             SizedBox(height: 16),
-                                            SizedBox(height: 8), //
+                                            SizedBox(height: 8),
                                             Text(
-                                              'Nível de Ruído:', //
+                                              'Nível de Ruído:',
                                               style: TextStyle(
-                                                color: Colors.white, //
+                                                color: Colors.white,
                                                 fontWeight: FontWeight.bold,
-                                              ), //
+                                              ),
                                             ),
                                             Text(
-                                              'Valor do nível de ruído aqui', //
+                                              'Valor do nível de ruído aqui',
                                               style: TextStyle(
-                                                color: Colors.white, //
+                                                color: Colors.white,
                                               ),
                                             ), //
                                             SizedBox(height: 8),
                                             Text(
-                                              //
                                               'Última atualização:',
                                               style: TextStyle(
-                                                //
                                                 color: Colors.white,
-                                                fontWeight: FontWeight.bold, //
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                            ), //
+                                            ),
                                             Text(
-                                              'Data e hora aqui', //
+                                              'Data e hora aqui',
                                               style: TextStyle(
                                                 color: Colors.white,
-                                              ), //
+                                              ),
                                             ),
-                                            SizedBox(height: 16), //
+                                            SizedBox(height: 16),
                                             Align(
-                                              alignment:
-                                                  Alignment.centerRight, //
+                                              alignment: Alignment.centerRight,
                                               child: TextButton(
                                                 onPressed:
-                                                    () => //
+                                                    () =>
                                                         Navigator.of(
                                                           context,
-                                                        ).pop(), //
+                                                        ).pop(),
                                                 child: Text(
-                                                  'Fechar', //
+                                                  'Fechar',
                                                   style: TextStyle(
-                                                    color: Colors.white, //
+                                                    color: Colors.white,
                                                   ),
-                                                ), //
+                                                ),
                                               ),
-                                            ), //
+                                            ),
                                           ],
-                                        ), //
+                                        ),
                                       ),
                                     ),
-                                    backgroundColor: Colors.transparent, //
+                                    backgroundColor: Colors.transparent,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        16,
-                                      ), //
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                   );
-                                }, //
+                                },
                               );
                             },
                             child: Icon(
                               Icons.volume_up,
                               color: Colors.red,
-                              size: 50, //
+                              size: 50,
                             ),
                           ),
                         );
@@ -442,18 +389,21 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.speed, color: Colors.white), //
-        onPressed: () async {
-          // Navigate to the measurement page and wait for it to be popped
-          await Get.toNamed(Routes.MEASUREMENT_PAGE);
-          // Once returned, reload the measurements
-          _loadMeasurements();
-        },
+      floatingActionButton: SizedBox(
+        width: 120,
+        height: 60,
+        child: FloatingActionButton(
+          tooltip: 'Gravar Ruído',
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.speed, color: Colors.white, size: 30),
+          onPressed: () async {
+            await Get.toNamed(Routes.MEASUREMENT_PAGE);
+            _loadMeasurements();
+          },
+        ),
       ),
     );
-  } //
+  }
 }
 
 class DashboardPage extends StatelessWidget {
