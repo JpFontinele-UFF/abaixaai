@@ -13,6 +13,5 @@ class UserController extends GetxController {
     } else if (role == UserRole.superAdmin) {
       isSuperAdmin.value = true;
     }
-    
   }
 }

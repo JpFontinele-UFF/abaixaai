@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:abaixaai/app/controller/measurement_controller.dart';
+import 'package:abaixaai/app/data/service/global_variables.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -80,7 +81,7 @@ class _MeasurementPageState extends State<MeasurementPage> {
 
   void _startCountdown() async {
     setState(() {
-      countdown = 5;
+      countdown = GlobalVariables.RECORDINGTIME;
     });
     // Inicia a gravação imediatamente para feedback visual
     controller.startRecording();

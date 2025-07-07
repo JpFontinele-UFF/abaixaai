@@ -1,10 +1,12 @@
 // Imports originais do seu arquivo
 import 'package:abaixaai/app/controller/login_controller.dart';
 import 'package:abaixaai/app/controller/measurement_controller.dart';
+import 'package:abaixaai/app/data/service/global_variables.dart';
 import 'package:abaixaai/app/routes/app_routes.dart';
 import 'package:abaixaai/app/ui/pages/focos_barulho.dart';
 import 'package:abaixaai/app/ui/pages/informacoes.dart';
 import 'package:abaixaai/app/ui/pages/minhas_denuncias.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -28,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   final Location _location = Location();
   LatLng? _currentLocation;
-  List<Marker> _markers = [];
+  List<MeasurementMarker> _measurementMarkers = [];
 
   @override
   void initState() {
@@ -93,13 +95,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadMeasurements() async {
+    print('Carregando medições...');
     final measurements = await _measurementController.fetchMeasurements();
+    print('Medições carregadas: $measurements');
     setState(() {
-      _markers =
+      _measurementMarkers =
           measurements.map((measurement) {
-            return Marker(
-              point: LatLng(measurement['latitude'], measurement['longitude']),
-              child: const Icon(Icons.location_on, color: Colors.red, size: 30),
+            print('Criando marker para: $measurement');
+            return MeasurementMarker(
+              marker: Marker(
+                point: LatLng(
+                  measurement['latitude'],
+                  measurement['longitude'],
+                ),
+                child: const Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 30,
+                ),
+              ),
+              noiseLevel: measurement['avg'],
+              dateTime: measurement['timestamp'],
             );
           }).toList();
     });
@@ -250,13 +266,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                   CircleLayer(
                     circles:
-                        _markers.map((marker) {
+                        _measurementMarkers.map((marker) {
                           Color circleColor;
-                          if (5 < 50) {
+                          if (marker.noiseLevel < GlobalVariables.LOWNOISE) {
                             circleColor = Colors.green.withOpacity(
                               0.3,
                             ); // Baixo ruído
-                          } else if (50 >= 50 && 50 < 70) {
+                          } else if (marker.noiseLevel <
+                              GlobalVariables.MEDIUMNOISE) {
                             circleColor = Colors.yellow.withOpacity(
                               0.3,
                             ); // Médio ruído
@@ -266,7 +283,7 @@ class _HomePageState extends State<HomePage> {
                             ); // Alto ruído
                           }
                           return CircleMarker(
-                            point: marker.point,
+                            point: marker.marker.point,
                             color: circleColor,
                             radius: 50,
                           );
@@ -283,9 +300,9 @@ class _HomePageState extends State<HomePage> {
                             size: 50,
                           ),
                         ),
-                      ..._markers.map((marker) {
+                      ..._measurementMarkers.map((marker) {
                         return Marker(
-                          point: marker.point,
+                          point: marker.marker.point,
                           child: GestureDetector(
                             onTap: () {
                               showDialog(
@@ -317,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
                                               ),
-                                            ), //
+                                            ),
                                             SizedBox(height: 16),
                                             SizedBox(height: 8),
                                             Text(
@@ -328,21 +345,21 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ),
                                             Text(
-                                              'Valor do nível de ruído aqui',
+                                              marker.noiseLevel.toString(),
                                               style: TextStyle(
                                                 color: Colors.white,
                                               ),
-                                            ), //
+                                            ),
                                             SizedBox(height: 8),
                                             Text(
-                                              'Última atualização:',
+                                              'Última Atualização:',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             Text(
-                                              'Data e hora aqui',
+                                              marker.dateTime.toString(),
                                               style: TextStyle(
                                                 color: Colors.white,
                                               ),
@@ -404,6 +421,18 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class MeasurementMarker {
+  final Marker marker;
+  final double noiseLevel;
+  final Timestamp dateTime;
+
+  MeasurementMarker({
+    required this.marker,
+    required this.noiseLevel,
+    required this.dateTime,
+  });
 }
 
 class DashboardPage extends StatelessWidget {

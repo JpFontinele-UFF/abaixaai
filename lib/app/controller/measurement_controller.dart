@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:abaixaai/app/data/service/global_variables.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:noise_meter/noise_meter.dart';
@@ -87,9 +88,9 @@ class MeasurementController extends GetxController {
     int medium = 0;
     int high = 0;
 
-    if (avgDb.value < 40) {
+    if (avgDb.value < GlobalVariables.LOWNOISE) {
       low = 1;
-    } else if (avgDb.value < 80) {
+    } else if (avgDb.value < GlobalVariables.MEDIUMNOISE) {
       medium = 1;
     } else {
       high = 1;
@@ -108,7 +109,7 @@ class MeasurementController extends GetxController {
           existingLongitude,
         );
 
-        if (distance <= 50) {
+        if (distance <= GlobalVariables.ZONE) {
           isWithinRange = true;
           parentDocId = doc.id;
           break;
