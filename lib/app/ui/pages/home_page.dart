@@ -14,6 +14,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:abaixaai/app/ui/pages/webview_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -202,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text(
                       FirebaseAuth.instance.currentUser?.email ?? '',
-                      style: const TextStyle(color: Colors.blue, fontSize: 12),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -285,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                           return CircleMarker(
                             point: marker.marker.point,
                             color: circleColor,
-                            radius: 50,
+                            radius: GlobalVariables.ZONE.toDouble(),
                           );
                         }).toList(),
                   ),
@@ -345,7 +346,14 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ),
                                             Text(
-                                              marker.noiseLevel.toString(),
+                                              marker.noiseLevel <
+                                                      GlobalVariables.LOWNOISE
+                                                  ? 'Baixo (${marker.noiseLevel.toStringAsFixed(2)})'
+                                                  : marker.noiseLevel <
+                                                      GlobalVariables
+                                                          .MEDIUMNOISE
+                                                  ? 'Médio (${marker.noiseLevel.toStringAsFixed(2)})'
+                                                  : 'Alto (${marker.noiseLevel.toStringAsFixed(2)})',
                                               style: TextStyle(
                                                 color: Colors.white,
                                               ),
@@ -359,7 +367,11 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                             ),
                                             Text(
-                                              marker.dateTime.toString(),
+                                              DateFormat(
+                                                'dd/MM/yyyy - HH:mm',
+                                              ).format(
+                                                marker.dateTime.toDate(),
+                                              ),
                                               style: TextStyle(
                                                 color: Colors.white,
                                               ),
@@ -444,6 +456,7 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         backgroundColor: Colors.blue,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         children: [
