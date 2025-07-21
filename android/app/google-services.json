@@ -14,11 +14,67 @@
       },
       "oauth_client": [
         {
+          "client_id": "698873459124-3e0jq2d27r40uikkopqlb574mf6ktp40.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "50575128b26811376ed42b647769c53531672f85"
+          }
+        },
+        {
+          "client_id": "698873459124-49rbciikk0114v8293s438jv452mgbnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "ea89a8c1d7a2064b10c0213b2585b386836f46c0"
+          }
+        },
+        {
+          "client_id": "698873459124-51mi43uo6fnounp1o5hceos3rs0e838r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "20c72988d95f4f5469dc315260c955fd76c3e1b0"
+          }
+        },
+        {
+          "client_id": "698873459124-8m8dkov25cl35ldq8d3u3c54j3qe080m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "fd7b4b2f260f371180a67e8251ca3605e556c1b6"
+          }
+        },
+        {
+          "client_id": "698873459124-gmr2hl4aakdhg0a5f6gv0bvkqdk85ed7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "e819e5b2cbd619b09fdb0c95fcabb9828079013c"
+          }
+        },
+        {
+          "client_id": "698873459124-scirp15ai0thlq1hsa9fmvdf2ccfahrv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "d8100a55b9794605af7dfdf9f2f3219ff2014903"
+          }
+        },
+        {
           "client_id": "698873459124-tf0ci7u0856sui45vb8qbjc936e89h9u.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.abaixaai",
             "certificate_hash": "e58718e9bac00432c0def6c506b0743f5ce43c11"
+          }
+        },
+        {
+          "client_id": "698873459124-u4im54tcg28dr66uajh86md31ik6hula.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.abaixaai",
+            "certificate_hash": "bc9b2716ee808f5f635d972b6327a8ba03bd7995"
           }
         },
         {

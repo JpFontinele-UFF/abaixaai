@@ -264,6 +264,10 @@ class _HomePageState extends State<HomePage> {
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.example.abaixaai',
+                    additionalOptions: {
+                      'User-Agent': 'AbaixaAI Mobile App v1.0.0',
+                    },
                   ),
                   CircleLayer(
                     circles:
