@@ -131,12 +131,23 @@ class MeasurementController extends GetxController {
       int currentMedium = currentAmount['medium'] ?? 0;
       int currentHigh = currentAmount['high'] ?? 0;
 
-      int total =
-          currentLow + low + currentMedium + medium + currentHigh + high;
+      // Total de medições existentes e novas
+      int existingTotal = currentLow + currentMedium + currentHigh;
+      int newTotal = existingTotal + low + medium + high;
 
-      double newMin = (currentMin + minDb.value) / total;
-      double newMax = (currentMax + maxDb.value) / total;
-      double newAvg = (currentAvg + avgDb.value) / total;
+      // Calcula a média ponderada dos valores
+      double newMin =
+          existingTotal == 0
+              ? minDb.value
+              : ((currentMin * existingTotal) + minDb.value) / newTotal;
+      double newMax =
+          existingTotal == 0
+              ? maxDb.value
+              : ((currentMax * existingTotal) + maxDb.value) / newTotal;
+      double newAvg =
+          existingTotal == 0
+              ? avgDb.value
+              : ((currentAvg * existingTotal) + avgDb.value) / newTotal;
 
       // Guarda a nova denúncia na sub_denúncia
       await denunciasCollection.doc(parentDocId).collection('sub_denuncias').add({

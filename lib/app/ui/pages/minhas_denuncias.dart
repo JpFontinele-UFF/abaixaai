@@ -14,9 +14,8 @@ class MyReportsPage extends StatelessWidget {
 
     // 1. Fetch ALL documents from the 'denuncias' collection
     // We no longer filter by 'createdAt' at this level, as per your new requirement.
-    final mainCollectionSnapshot = await FirebaseFirestore.instance
-        .collection('denuncias')
-        .get();
+    final mainCollectionSnapshot =
+        await FirebaseFirestore.instance.collection('denuncias').get();
 
     for (var doc in mainCollectionSnapshot.docs) {
       final data = doc.data();
@@ -27,22 +26,20 @@ class MyReportsPage extends StatelessWidget {
         DateTime? dateTime;
 
         if (timestamp != null) {
-          // Adjust for GMT-3 timezone (current time is -03)
-          dateTime = timestamp.toDate().subtract(const Duration(hours: 3));
+          // Use the timestamp as-is without timezone adjustment
+          dateTime = timestamp.toDate();
         }
 
-        allReports.add({
-          ...data,
-          'timestamp': dateTime,
-        });
+        allReports.add({...data, 'timestamp': dateTime});
       }
 
       // 2. Always fetch documents from the 'sub_denuncias' subcollection for each main document
       // AND apply the 'createdAt' filter for the user's email here.
-      final subReportsQuerySnapshot = await doc.reference
-          .collection('sub_denuncias')
-          .where('createdAt', isEqualTo: userEmail)
-          .get();
+      final subReportsQuerySnapshot =
+          await doc.reference
+              .collection('sub_denuncias')
+              .where('createdAt', isEqualTo: userEmail)
+              .get();
 
       for (var subDoc in subReportsQuerySnapshot.docs) {
         final subData = subDoc.data();
@@ -50,14 +47,11 @@ class MyReportsPage extends StatelessWidget {
         DateTime? subDateTime;
 
         if (subTimestamp != null) {
-          // Adjust for GMT-3 timezone (current time is -03)
-          subDateTime = subTimestamp.toDate().subtract(const Duration(hours: 3));
+          // Use the timestamp as-is without timezone adjustment
+          subDateTime = subTimestamp.toDate();
         }
 
-        allReports.add({
-          ...subData,
-          'timestamp': subDateTime,
-        });
+        allReports.add({...subData, 'timestamp': subDateTime});
       }
     }
 
@@ -95,7 +89,9 @@ class MyReportsPage extends StatelessWidget {
             ),
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white), // Set back button color to white
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ), // Set back button color to white
       ),
       // Apply a subtle background color to the body.
       body: Container(
@@ -113,7 +109,11 @@ class MyReportsPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 50),
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 50,
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         'Erro ao carregar denúncias: ${snapshot.error}',
@@ -155,7 +155,11 @@ class MyReportsPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.info_outline, color: Colors.blueGrey, size: 60),
+                      const Icon(
+                        Icons.info_outline,
+                        color: Colors.blueGrey,
+                        size: 60,
+                      ),
                       const SizedBox(height: 20),
                       const Text(
                         'Nenhuma denúncia encontrada.',
@@ -170,10 +174,7 @@ class MyReportsPage extends StatelessWidget {
                       const Text(
                         'Parece que você ainda não fez nenhuma denúncia. Use o mapa na tela inicial para registrar o ruído ao seu redor!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -183,25 +184,35 @@ class MyReportsPage extends StatelessWidget {
 
             final reports = snapshot.data!;
             return ListView.builder(
-              padding: const EdgeInsets.all(16.0), // Add padding around the list
+              padding: const EdgeInsets.all(
+                16.0,
+              ), // Add padding around the list
               itemCount: reports.length,
               itemBuilder: (context, index) {
                 final report = reports[index];
                 final timestamp = report['timestamp'] as DateTime?;
-                final formattedTimestamp = timestamp != null
-                    ? '${timestamp.day.toString().padLeft(2, '0')}/${timestamp.month.toString().padLeft(2, '0')}/${timestamp.year} ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}'
-                    : 'Data inválida';
+                final formattedTimestamp =
+                    timestamp != null
+                        ? '${timestamp.day.toString().padLeft(2, '0')}/${timestamp.month.toString().padLeft(2, '0')}/${timestamp.year} ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}'
+                        : 'Data inválida';
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0), // Spacing between cards
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                  ), // Spacing between cards
                   elevation: 5, // Add a subtle shadow
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0), // Rounded corners for cards
+                    borderRadius: BorderRadius.circular(
+                      15.0,
+                    ), // Rounded corners for cards
                   ),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.white, Colors.blue.shade50], // Subtle gradient for card background
+                        colors: [
+                          Colors.white,
+                          Colors.blue.shade50,
+                        ], // Subtle gradient for card background
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -214,7 +225,11 @@ class MyReportsPage extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.location_on, color: Colors.blue, size: 24),
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.blue,
+                                size: 24,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -229,23 +244,36 @@ class MyReportsPage extends StatelessWidget {
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 32.0, top: 4.0),
+                            padding: const EdgeInsets.only(
+                              left: 32.0,
+                              top: 4.0,
+                            ),
                             child: Text(
                               'Latitude: ${report['latitude']?.toStringAsFixed(6) ?? 'N/A'}', // Format latitude
-                              style: const TextStyle(fontSize: 14, color: Colors.black87),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 32.0),
                             child: Text(
                               'Longitude: ${report['longitude']?.toStringAsFixed(6) ?? 'N/A'}', // Format longitude
-                              style: const TextStyle(fontSize: 14, color: Colors.black87),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: Colors.blue, size: 20),
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Colors.blue,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'Data da Denúncia:',
@@ -258,21 +286,33 @@ class MyReportsPage extends StatelessWidget {
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 32.0, top: 4.0),
+                            padding: const EdgeInsets.only(
+                              left: 32.0,
+                              top: 4.0,
+                            ),
                             child: Text(
                               formattedTimestamp,
-                              style: const TextStyle(fontSize: 14, color: Colors.black87),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                           // You can add more details from your report data here, e.g., noise level
-                          if (report.containsKey('noiseLevel')) // Assuming you might have a 'noiseLevel' field
+                          if (report.containsKey(
+                            'noiseLevel',
+                          )) // Assuming you might have a 'noiseLevel' field
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 12),
                                 Row(
                                   children: [
-                                    const Icon(Icons.volume_up, color: Colors.blue, size: 20),
+                                    const Icon(
+                                      Icons.volume_up,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Nível de Ruído:',
@@ -285,10 +325,16 @@ class MyReportsPage extends StatelessWidget {
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 32.0, top: 4.0),
+                                  padding: const EdgeInsets.only(
+                                    left: 32.0,
+                                    top: 4.0,
+                                  ),
                                   child: Text(
                                     '${report['noiseLevel']?.toStringAsFixed(2) ?? 'N/A'} dB',
-                                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                 ),
                               ],

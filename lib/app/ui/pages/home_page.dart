@@ -153,8 +153,9 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Get.to(
                 () => const WebViewPage(
-                  url: 'https://gabrielgomes191.github.io/AbaixaAI/#sobre', //
-                  title: 'Github.io Abaixa Aí',
+                  url:
+                      'https://github.com/JpFontinele-UFF/abaixaai/wiki/Guia-de-Uso', //
+                  title: 'Abaixa Aí Wiki',
                 ),
               );
             },
@@ -273,11 +274,11 @@ class _HomePageState extends State<HomePage> {
                     circles:
                         _measurementMarkers.map((marker) {
                           Color circleColor;
-                          if (marker.noiseLevel < GlobalVariables.LOWNOISE) {
+                          if (marker.noiseLevel <= GlobalVariables.LOWNOISE) {
                             circleColor = Colors.green.withOpacity(
                               0.3,
                             ); // Baixo ruído
-                          } else if (marker.noiseLevel <
+                          } else if (marker.noiseLevel <=
                               GlobalVariables.MEDIUMNOISE) {
                             circleColor = Colors.yellow.withOpacity(
                               0.3,
